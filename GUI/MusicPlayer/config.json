@@ -1,0 +1,7 @@
+{
+  "server_port": 5000,
+  "protocol_version": 1,
+  "log_file": "/home/pi/music_log.txt",
+  "allowed_devices": ["iphone", "ipad"],
+  "state_timeout_seconds": 5
+}
