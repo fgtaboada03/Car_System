@@ -1,0 +1,13 @@
+    1: start_song,
+    2: start_playlist,
+    3: (queue_song, False),
+    4: (queue_song, True),
+    5: (queue_playlist, False),
+    6: (queue_song, True),
+    7: reorder_songs,
+    8: delete_song,
+    9: adjust_cur_time,
+    10: adjust_volume,
+    11: toggle_playback,
+    12: skip_reverse,
+    13: skip_forward

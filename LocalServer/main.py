@@ -1,21 +1,19 @@
 import paho.mqtt.client as mqtt
 
-from maps import updateStops
-from music import updateSongQueue
+from maps.operator import action
+from music.operator import action
 
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
-    client.subscribe("queues/songs")
-    client.subscribe("queues/stops")
+    client.subscribe("actions/songs")
+    client.subscribe("actions/stops")
 
 def on_message(client, userdata, msg):
     print(f"Recieved message on topic {msg.topic}: {msg.playload}")
     if msg.payload == b"Yes":
         try:
-            updateStops()
-            print("Stops Updated Successfully")
-            updateSongQueue()
-            print("Song Queue Updated Successfully")
+            action(msg)
+
         except Exception as e:
             print(e)
     else:
