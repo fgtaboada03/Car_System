@@ -1,31 +1,54 @@
 import paho.mqtt.client as mqtt
 
+import threading
+import time
+
 from maps.operator import action
-from music.operator import action
+from music.actions import music_action
+from music.controller import Controller
+
+controller = Controller()
+
+BROKER = "localhost"
+PORT = 1883
+TOPIC_1 = "actions/songs"
+TOPIC_2 = "actions/stops"
 
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
-    client.subscribe("actions/songs")
-    client.subscribe("actions/stops")
+    client.subscribe(TOPIC_1)
+    client.subscribe(TOPIC_2)
 
 def on_message(client, userdata, msg):
-    print(f"Recieved message on topic {msg.topic}: {msg.playload}")
-    if msg.payload == b"Yes":
-        try:
-            action(msg)
+    try:
+        payload = msg.payload.decode()
+        print(f"Received message on topic {msg.topic}: {payload}")
 
-        except Exception as e:
-            print(e)
-    else:
-        print("Not updating Stops and Song Queue")
+        music_action(controller, msg)
+
+    except Exception as e:
+        print("Error handling message:", e)
+
+def autoplay_loop():
+    while True:
+        time.sleep(0.1)  # lightweight polling
+        if controller.is_song_over():
+            print("Song ended, autoplaying next...")
+            controller.skip_forward()
     
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
+def create_server():
+    server = mqtt.Client()
+    server.on_connect = on_connect
+    server.on_message = on_message
+    server.connect(BROKER, PORT, 60)
+    server.loop_start()
+    return server
 
-client.connect("localhost", 1883, 60)
-print("Listening Forever")
+server = create_server()
+threading.Thread(target=autoplay_loop, daemon=True).start()
 try:
-    client.loop_forever()
-except:
-    print("Something Happened Connecting to the Broker!")
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("Exiting...")
+    server.loop_stop()
