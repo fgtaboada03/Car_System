@@ -6,7 +6,7 @@ from typing import Any, cast
 import time
 import threading
 
-from .songs import Songs
+from LocalServer.music.songs import Songs
 
 class Controller():
     def __init__(self):
@@ -20,6 +20,9 @@ class Controller():
         )
         if self.vlc_instance is None:
             raise RuntimeError("Failed to initialize VLC instance")
+    
+    def update(self):
+        return
     
     def is_song_over(self):
         """Check if the current song has finished playing."""
@@ -59,11 +62,11 @@ class Controller():
         return best_audio["url"]
 
 
-    def play(self, video_url):
+    def play(self, video_url, noplaylist = True):
         ydl_opts = {
             "format": "bestaudio/best",
             "quiet": True,
-            "noplaylist": True,
+            "noplaylist": noplaylist,
         }
 
         # Stop existing media
@@ -92,8 +95,9 @@ class Controller():
         self.playing = False
 
     def start_song(self, data):
-        self.queue_song(data)
-        self.play(self.songs.next())
+        try:
+            self.play(data["url"])
+            
 
     def start_playlist(self, data):
         self.queue_playlist(data)
@@ -107,13 +111,13 @@ class Controller():
             self.songs.append(url)
 
     def queue_playlist(self, data, up_next = False):
-        offset = 1
         url = data["url"]
         pl = Playlist(url)
 
         for i, url in enumerate(pl.video_urls):
+            print(i, " ", url)
             if up_next:
-                self.songs.insert(offset + i, url)
+                self.songs.insert(i, url)
             else:
                 self.songs.append(url)
 

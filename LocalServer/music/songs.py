@@ -1,5 +1,11 @@
 from collections import deque
 import random
+from collections import namedtuple
+from pytubefix import YouTube
+
+Song = namedtuple("Song", ["url", "title", "thumbnail"])
+
+from yt_dlp import YoutubeDL
 
 class Songs():
     trashbin_size_limit = 10
@@ -12,23 +18,26 @@ class Songs():
         self.repeat = False
         self.time = 0
     
+    def getCurrent(self):
+        return self.current
+    
     def clear(self):
         self.queue.clear()
     
     def play(self, url):
-        self.queue.clear()
-        self.current = url
+        self.clear()
+        self.current = Song(url, YouTube(url).title, YouTube(url).thumbnail_url)
         return url
 
     def play_playlist(self, playlist):
-        self.queue.clear()
-        self.current = playlist[0]
+        self.clear()
+        self.current = YouTube(playlist[0])
 
         for url in (playlist[1:]):
-            self.queue.append(url)
+            self.queue.append(YouTube(url))
     
     def insert(self, i, url):
-        self.queue.insert(i, url)
+        self.queue.insert(i, YouTube(url))
 
     def append(self, url):
         self.queue.append(url)

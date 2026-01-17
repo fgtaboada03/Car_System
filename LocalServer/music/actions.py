@@ -1,7 +1,7 @@
 import json
 
-def music_action(controller, msg):
-    data = json.loads(msg.payload.decode())
+def music_action(controller, payload):
+    data = json.loads(payload)
     action = data["action"]
 
     match action:
