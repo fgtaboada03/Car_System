@@ -6,9 +6,9 @@ import json
 
 from LocalServer.maps.operator import action
 from LocalServer.music.actions import music_action
-from LocalServer.music.controller import Controller
+from LocalServer.music.mediaplayer import MediaPlayer
 
-controller = Controller()
+controller = MediaPlayer()
 
 BROKER = "localhost"
 PORT = 1883
@@ -48,9 +48,17 @@ def on_message(client, userdata, msg):
     try:
         payload = msg.payload.decode('utf-8')
         print(f"Received message on topic {msg.topic}: {payload}")
-        music_action(controller, payload)
+        update = music_action(controller, payload)
+        if msg.topic == CHANNELS[0]: # songs/actions
+            update_channel = CHANNELS[1]
+        elif msg.topic == CHANNELS[2]: # songs/actions
+            update_channel = CHANNELS[3]
+        else:
+            update_channel = "FAILED"
+        print(f"Sending message on topic {update_channel}: {update}")
 
     except Exception as e:
+        print("Error Here")
         print("Error handling message:", e)
 
 def autoplay_loop():

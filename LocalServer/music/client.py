@@ -6,6 +6,7 @@ BROKER = "localhost"
 PORT = 1883
 ACTIONS = "songs/actions"
 UPDATES = "songs/updates"
+QUIT = 14
 
 DEFAULT_PAYLOAD = {
     "username": "",
@@ -30,7 +31,8 @@ ACTIONS_TABLE = {
     10: "Adjust Volume",
     11: "Toggle Playback",
     12: "Skip Reverse",
-    13: "Skip Forward"
+    13: "Skip Forward",
+    14: "Quit"
 }
 
 def print_queue(payload):
@@ -57,6 +59,8 @@ def create_payload(username):
     print_action()
     payload = DEFAULT_PAYLOAD.copy()
     action = int(input("Enter Action: "))
+    if (action == QUIT):
+        return None
     payload["action"] = action
     payload["username"] = username
 
@@ -108,12 +112,12 @@ username = input("Enter a username: ")
 while True:
     payload = create_payload(username)
 
+    if payload is None:
+        break
+
     json_payload = json.dumps(payload)
     client.publish(ACTIONS, json_payload)
 
     time.sleep(1)
-
-    if input("Enter Q to quit.").lower() == "q":
-        break
 client.loop_stop()
 client.disconnect()

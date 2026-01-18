@@ -7,7 +7,7 @@ Song = namedtuple("Song", ["url", "title", "thumbnail"])
 
 from yt_dlp import YoutubeDL
 
-class Songs():
+class Queue():
     trashbin_size_limit = 10
     def __init__(self, playlist = None):
         self.queue = self.queue = playlist if playlist else deque()
@@ -26,7 +26,7 @@ class Songs():
     
     def play(self, url):
         self.clear()
-        self.current = Song(url, YouTube(url).title, YouTube(url).thumbnail_url)
+        self.current = url
         return url
 
     def play_playlist(self, playlist):
@@ -35,6 +35,7 @@ class Songs():
 
         for url in (playlist[1:]):
             self.queue.append(YouTube(url))
+        return self.current
     
     def insert(self, i, url):
         self.queue.insert(i, YouTube(url))
